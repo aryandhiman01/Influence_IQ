@@ -1,9 +1,24 @@
-.venv/
+# Environment
 .env
+
+# Python
 __pycache__/
-.ipynb_checkpoints/
 *.pyc
 
-data/raw/*.json
-data/processed/*.csv
-data/exports/*.csv
+# Virtual Environment
+.venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Raw API Data
+data/raw/
+
+# Processed Data
+data/processed/
+
+# Exported Reports
+data/exports/
+
+# Logs
+logs/
