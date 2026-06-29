@@ -1,53 +1,61 @@
 from src.api.youtube_client import youtube
 
 
-def get_video_comments(video_id: str, max_results: int = 100):
+def get_video_comments(
+    video_id: str,
+    max_comments: int = 100
+):
     """
-    Fetch top comments of a YouTube video.
-
-    Args:
-        video_id (str): YouTube Video ID
-        max_results (int): Number of comments to fetch
-
-    Returns:
-        list
+    Fetch top-level comments with pagination.
     """
+
+    comments = []
+
+    next_page_token = None
 
     try:
 
-        request = youtube.commentThreads().list(
-            part="snippet",
-            videoId=video_id,
-            maxResults=max_results,
-            textFormat="plainText"
-        )
+        while len(comments) < max_comments:
 
-        response = request.execute()
+            request = youtube.commentThreads().list(
+                part="snippet",
+                videoId=video_id,
+                maxResults=min(100, max_comments - len(comments)),
+                textFormat="plainText",
+                pageToken=next_page_token
+            )
 
-        comments = []
+            response = request.execute()
 
-        for item in response.get("items", []):
+            for item in response.get("items", []):
 
-            snippet = item["snippet"]["topLevelComment"]["snippet"]
+                snippet = item["snippet"]["topLevelComment"]["snippet"]
 
-            comments.append({
+                comments.append({
 
-                "comment_id": item["snippet"]["topLevelComment"]["id"],
+                    "comment_id": item["snippet"]["topLevelComment"]["id"],
 
-                "author": snippet["authorDisplayName"],
+                    "video_id": video_id,
 
-                "comment": snippet["textDisplay"],
+                    "author": snippet["authorDisplayName"],
 
-                "likes": snippet["likeCount"],
+                    "comment": snippet["textDisplay"],
 
-                "published_at": snippet["publishedAt"]
+                    "likes": snippet["likeCount"],
 
-            })
+                    "published_at": snippet["publishedAt"]
+
+                })
+
+            next_page_token = response.get("nextPageToken")
+
+            if not next_page_token:
+                break
 
         return comments
 
     except Exception as e:
 
-        print(f"Error : {e}")
+        print(f"Error fetching comments: {e}")
 
         return []

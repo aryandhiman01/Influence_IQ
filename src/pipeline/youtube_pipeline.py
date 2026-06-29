@@ -12,107 +12,155 @@ from src.api.comment_service import (
     get_video_comments
 )
 
-from src.utils.file_handler import save_json
 from src.pipeline.etl_pipeline import run_validation
+
+from src.database.connection import SessionLocal
+
+from src.repositories.channel_repository import save_channel
+from src.repositories.video_repository import save_videos
+from src.repositories.comment_repository import save_comments
 
 
 def run_pipeline():
 
-    channel_name = input("Enter Channel Name: ").strip()
+    db = SessionLocal()
 
-    channel_id = search_channel(channel_name)
+    try:
 
-    if not channel_id:
-        print("❌ Channel Not Found")
-        return
+        # ----------------------------------------
+        # Channel Input
+        # ----------------------------------------
 
-    # ----------------------------------------
-    # CHANNEL DETAILS
-    # ----------------------------------------
+        channel_name = input("Enter Channel Name: ").strip()
 
-    details = get_channel_details(channel_id)
+        channel_id = search_channel(channel_name)
 
-    save_json(
-        details,
-        "data/raw/channels",
-        f"{channel_name.lower().replace(' ', '_')}.json"
-    )
+        if not channel_id:
+            print("❌ Channel Not Found")
+            return
 
-    print("\n========== CHANNEL DETAILS ==========\n")
+        # ----------------------------------------
+        # Channel Details
+        # ----------------------------------------
 
-    for key, value in details.items():
-        print(f"{key:<20}: {value}")
+        details = get_channel_details(channel_id)
 
-    # ----------------------------------------
-    # PLAYLIST
-    # ----------------------------------------
+        print("\n========== CHANNEL DETAILS ==========\n")
 
-    playlist_id = get_upload_playlist_id(channel_id)
+        for key, value in details.items():
+            print(f"{key:<20}: {value}")
 
-    if not playlist_id:
-        print("❌ Upload Playlist Not Found")
-        return
+        save_channel(db, details)
 
-    print("\nUploads Playlist ID:")
-    print(playlist_id)
+        print("✅ Channel Ready")
 
-    # ----------------------------------------
-    # VIDEOS
-    # ----------------------------------------
+        # ----------------------------------------
+        # Upload Playlist
+        # ----------------------------------------
 
-    videos = get_channel_videos(playlist_id)
+        playlist_id = get_upload_playlist_id(channel_id)
 
-    save_json(
-        videos,
-        "data/raw/videos",
-        f"{channel_name.lower().replace(' ', '_')}_videos.json"
-    )
+        if not playlist_id:
+            print("❌ Upload Playlist Not Found")
+            return
 
-    print("\n========== LATEST VIDEOS ==========\n")
+        print(f"\nUploads Playlist ID : {playlist_id}")
 
-    for index, video in enumerate(videos, start=1):
-        print(f"{index}. {video['title']}")
+        # ----------------------------------------
+        # Videos
+        # ----------------------------------------
 
-    # ----------------------------------------
-    # COMMENTS
-    # ----------------------------------------
+        videos = get_channel_videos(
+            playlist_id,
+            max_videos=50
+        )
 
-    if not videos:
-        print("❌ No Videos Found")
-        return
+        if not videos:
+            print("❌ No Videos Found")
+            return
 
-    first_video = videos[0]
+        print("\n========== VIDEOS ==========\n")
 
-    print("\n========== FIRST VIDEO ==========\n")
+        print(f"Total Videos : {len(videos)}\n")
 
-    print(f"Video Title : {first_video['title']}")
-    print(f"Video ID    : {first_video['video_id']}")
+        for index, video in enumerate(videos, start=1):
+            print(f"{index}. {video['title']}")
 
-    comments = get_video_comments(first_video["video_id"])
+        save_videos(
+            db,
+            details["channel_id"],
+            videos
+        )
 
-    save_json(
-        comments,
-        "data/raw/comments",
-        f"{channel_name.lower().replace(' ', '_')}_comments.json"
-    )
+        # ----------------------------------------
+        # Comments
+        # ----------------------------------------
 
-    # ----------------------------------------
-    # VALIDATION
-    # ----------------------------------------
+        print("\n========== FETCHING COMMENTS ==========\n")
 
-    run_validation(
-        details,
-        videos,
-        comments
-    )
+        all_comments = []
 
-    print("\n========== COMMENTS ==========\n")
-    print(f"Total Comments Fetched : {len(comments)}\n")
+        for index, video in enumerate(videos, start=1):
 
-    for index, comment in enumerate(comments, start=1):
+            print(f"[{index}/{len(videos)}] Fetching Comments")
 
-        print(f"{index}. {comment['author']}")
-        print(comment["comment"])
-        print("-" * 60)
+            print(f"Title    : {video['title']}")
+            print(f"Video ID : {video['video_id']}")
 
-    print("\n✅ Pipeline Completed Successfully!")
+            comments = get_video_comments(
+                video["video_id"],
+                max_comments=100
+            )
+
+            print(f"Comments Fetched : {len(comments)}")
+
+            print("-" * 70)
+
+            all_comments.extend(comments)
+
+        print(f"\n✅ Total Comments Collected : {len(all_comments)}")
+
+        save_comments(
+            db,
+            all_comments
+        )
+
+        # ----------------------------------------
+        # Commit Once
+        # ----------------------------------------
+
+        db.commit()
+
+        print("✅ Database Commit Successful")
+
+        # ----------------------------------------
+        # Validation
+        # ----------------------------------------
+
+        run_validation(
+            details,
+            videos,
+            all_comments
+        )
+
+        # ----------------------------------------
+        # Summary
+        # ----------------------------------------
+
+        print("\n========== PIPELINE SUMMARY ==========\n")
+
+        print(f"Channel Name      : {details['channel_name']}")
+        print(f"Videos Stored     : {len(videos)}")
+        print(f"Comments Stored   : {len(all_comments)}")
+
+        print("\n🎉 Data Successfully Stored in Neon!")
+
+    except Exception as e:
+
+        db.rollback()
+
+        print(f"\n❌ Pipeline Error : {e}")
+
+    finally:
+
+        db.close()
