@@ -143,9 +143,7 @@ class Comment(Base):
         String
     )
 
-    # -----------------------------
     # NLP Pipeline
-    # -----------------------------
 
     is_cleaned: Mapped[bool] = mapped_column(
         Boolean,
@@ -173,6 +171,11 @@ class Comment(Base):
     )
 
     contains_abusive_language: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False
+    )
+
+    is_abusive_checked: Mapped[bool] = mapped_column(
         Boolean,
         default=False
     )

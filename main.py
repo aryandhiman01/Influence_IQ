@@ -4,6 +4,7 @@ from src.pipeline.youtube_pipeline import run_pipeline
 from src.pipeline.cleaning_pipeline import run_cleaning_pipeline
 from src.pipeline.spam_pipeline import run_spam_pipeline
 from src.pipeline.sentiment_pipeline import run_sentiment_pipeline
+from src.pipeline.abusive_pipeline import run_abusive_pipeline
 
 
 def main():
@@ -20,8 +21,9 @@ def main():
         print("2. Clean Comments")
         print("3. Detect Spam")
         print("4. Sentiment Analysis")
-        print("5. Run Complete Pipeline")
-        print("6. Exit")
+        print("5. Detect Abusive Language")
+        print("6. Run Complete Pipeline")
+        print("7. Exit")
 
         choice = input("\nEnter Choice : ").strip()
 
@@ -43,7 +45,9 @@ def main():
 
         elif choice == "5":
 
-            print("\n========== COMPLETE PIPELINE ==========\n")
+            run_abusive_pipeline()
+
+        elif choice == "6":
 
             run_pipeline()
 
@@ -53,9 +57,9 @@ def main():
 
             run_sentiment_pipeline()
 
-            print("\n🎉 Complete Pipeline Executed Successfully!")
+            run_abusive_pipeline()
 
-        elif choice == "6":
+        elif choice == "7":
 
             print("\n👋 Exiting InfluenceIQ...")
 
