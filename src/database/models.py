@@ -179,3 +179,38 @@ class Comment(Base):
         Boolean,
         default=False
     )
+
+    word_count: Mapped[int] = mapped_column(
+        Integer,
+        default=0
+    )
+
+    character_count: Mapped[int] = mapped_column(
+        Integer,
+        default=0
+    )
+
+    comment_length: Mapped[str | None] = mapped_column(
+        String(20),
+        nullable=True
+    )
+
+    contains_link: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False
+    )
+
+    contains_question: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False
+    )
+
+    contains_exclamation: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False
+    )
+
+    is_feature_engineered: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False
+    )

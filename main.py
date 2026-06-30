@@ -5,6 +5,7 @@ from src.pipeline.cleaning_pipeline import run_cleaning_pipeline
 from src.pipeline.spam_pipeline import run_spam_pipeline
 from src.pipeline.sentiment_pipeline import run_sentiment_pipeline
 from src.pipeline.abusive_pipeline import run_abusive_pipeline
+from src.pipeline.feature_pipeline import run_feature_pipeline
 
 
 def main():
@@ -22,8 +23,9 @@ def main():
         print("3. Detect Spam")
         print("4. Sentiment Analysis")
         print("5. Detect Abusive Language")
-        print("6. Run Complete Pipeline")
-        print("7. Exit")
+        print("6. Feature Engineering")
+        print("7. Run Complete Pipeline")
+        print("8. Exit")
 
         choice = input("\nEnter Choice : ").strip()
 
@@ -49,6 +51,10 @@ def main():
 
         elif choice == "6":
 
+            run_feature_pipeline()
+
+        elif choice == "7":
+
             run_pipeline()
 
             run_cleaning_pipeline()
@@ -59,9 +65,9 @@ def main():
 
             run_abusive_pipeline()
 
-        elif choice == "7":
+            run_feature_pipeline()
 
-            print("\n👋 Exiting InfluenceIQ...")
+        elif choice == "8":
 
             break
 
