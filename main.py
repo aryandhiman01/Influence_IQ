@@ -1,12 +1,69 @@
 from src.database.loader import create_tables
+
 from src.pipeline.youtube_pipeline import run_pipeline
+from src.pipeline.cleaning_pipeline import run_cleaning_pipeline
+from src.pipeline.spam_pipeline import run_spam_pipeline
+from src.pipeline.sentiment_pipeline import run_sentiment_pipeline
 
 
 def main():
 
     create_tables()
 
-    run_pipeline()
+    while True:
+
+        print("\n" + "=" * 50)
+        print("              INFLUENCE IQ")
+        print("=" * 50)
+
+        print("1. Fetch YouTube Data")
+        print("2. Clean Comments")
+        print("3. Detect Spam")
+        print("4. Sentiment Analysis")
+        print("5. Run Complete Pipeline")
+        print("6. Exit")
+
+        choice = input("\nEnter Choice : ").strip()
+
+        if choice == "1":
+
+            run_pipeline()
+
+        elif choice == "2":
+
+            run_cleaning_pipeline()
+
+        elif choice == "3":
+
+            run_spam_pipeline()
+
+        elif choice == "4":
+
+            run_sentiment_pipeline()
+
+        elif choice == "5":
+
+            print("\n========== COMPLETE PIPELINE ==========\n")
+
+            run_pipeline()
+
+            run_cleaning_pipeline()
+
+            run_spam_pipeline()
+
+            run_sentiment_pipeline()
+
+            print("\n🎉 Complete Pipeline Executed Successfully!")
+
+        elif choice == "6":
+
+            print("\n👋 Exiting InfluenceIQ...")
+
+            break
+
+        else:
+
+            print("\n❌ Invalid Choice. Please Try Again.")
 
 
 if __name__ == "__main__":

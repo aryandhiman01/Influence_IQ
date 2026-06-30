@@ -125,16 +125,39 @@ class Comment(Base):
         String(255)
     )
 
-    comment: Mapped[str] = mapped_column(Text)
+    comment: Mapped[str] = mapped_column(
+        Text
+    )
+
+    clean_comment: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True
+    )
 
     likes: Mapped[int] = mapped_column(
         Integer,
         default=0
     )
 
-    published_at: Mapped[str] = mapped_column(String)
+    published_at: Mapped[str] = mapped_column(
+        String
+    )
+
+    # -----------------------------
+    # NLP Pipeline
+    # -----------------------------
 
     is_cleaned: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False
+    )
+
+    is_spam: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False
+    )
+
+    is_spam_checked: Mapped[bool] = mapped_column(
         Boolean,
         default=False
     )
@@ -144,7 +167,7 @@ class Comment(Base):
         nullable=True
     )
 
-    is_spam: Mapped[bool] = mapped_column(
+    is_sentiment_checked: Mapped[bool] = mapped_column(
         Boolean,
         default=False
     )
