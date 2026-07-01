@@ -1,12 +1,12 @@
-# 📊 InfluenceIQ — YouTube Intelligence Platform
+# 📊 InfluenceIQ - YouTube Intelligence Platform
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.10%2B-blue?style=for-the-badge&logo=python&logoColor=yellow" alt="Python Version">
   <img src="https://img.shields.io/badge/PostgreSQL-14%2B-316192?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL">
   <img src="https://img.shields.io/badge/SQLAlchemy-ORM-D71F27?style=for-the-badge&logo=sqlalchemy&logoColor=white" alt="SQLAlchemy">
-  <img src="https://img.shields.io/badge/Streamlit-Interactive%20UI-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white" alt="Streamlit">
+  <img src="https://img.shields.io/badge/Streamlit-Dashboard-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white" alt="Streamlit">
   <img src="https://img.shields.io/badge/NLP-VADER%20%7C%20Rules-orange?style=for-the-badge" alt="NLP Engine">
-  <img src="https://img.shields.io/badge/Build-Passing-emerald?style=for-the-badge" alt="Build Status">
+  <img src="https://img.shields.io/badge/Recommendation-Influence%20Scoring-10B981?style=for-the-badge" alt="Recommendation Engine">
   <img src="https://img.shields.io/badge/License-MIT-blueviolet?style=for-the-badge" alt="License">
 </p>
 
@@ -14,37 +14,44 @@
 
 ## 🚀 Overview
 
-**InfluenceIQ** is an end-to-end data engineering and natural language processing (NLP) intelligence platform designed to scrape, analyze, and visualize YouTube channel metrics, video metadata, and audience comment sentiment. 
+**InfluenceIQ** is an end-to-end YouTube analytics and influencer intelligence platform. It collects YouTube channel, video, and comment data; stores it in PostgreSQL through SQLAlchemy ORM; enriches comments with NLP pipelines; and presents insights through a multi-page Streamlit dashboard.
 
-The platform connects to the **YouTube Data API v3** to ingest raw data, models database relationships using **SQLAlchemy ORM**, stores records inside a relational **PostgreSQL** database, and executes a multi-stage **NLP Text Cleaning and Enrichment Pipeline** on gathered comments. Finally, it feeds a multi-page **Streamlit dashboard** that provides content creators and marketers with engagement indicators and toxicity alerts.
+The current version includes:
+
+- YouTube Data API v3 ingestion for channels, videos, and comments.
+- PostgreSQL persistence with SQLAlchemy declarative models.
+- Comment cleaning, spam detection, sentiment analysis, abusive language detection, and feature engineering.
+- Interactive Streamlit analytics pages for home metrics, videos, comments, NLP, and executive insights.
+- An AI-style recommendation module that scores influencer suitability for brand collaborations.
 
 ---
 
 ## ✨ System Architecture
 
-The workflow is completely modular, separating data ingestion from text normalization, spam detection, sentiment analysis, and UI visualization.
-
 ```mermaid
 flowchart TD
-    A[YouTube Data API v3] -->|API Ingestion Services| B[(PostgreSQL Database)]
-    B -->|Query Raw Comments| C[Text Cleaning & Normalization]
-    C -->|Regex Preprocessing| D[Spam Detection Pipeline]
-    D -->|Keyword Dictionaries| E[Sentiment Analysis Engine]
-    E -->|VADER Lexicons| F[Abusive Language Filter]
-    F -->|Toxicity Dictionary| G[Feature Engineering Engine]
-    G -->|Calculate KPIs| B
-    B -->|Query Formatted Metrics| H[Streamlit Executive Dashboard]
-    
+    A[YouTube Data API v3] -->|Ingestion Services| B[(PostgreSQL Database)]
+    B -->|Raw Comments| C[Text Cleaning]
+    C --> D[Spam Detection]
+    D --> E[Sentiment Analysis]
+    E --> F[Abusive Language Detection]
+    F --> G[Feature Engineering]
+    G --> B
+    B --> H[Streamlit Dashboard]
+    B --> I[Recommendation Engine]
+    I --> H
+
     style A fill:#3b82f6,stroke:#1d4ed8,stroke-width:2px,color:#fff
     style B fill:#10b981,stroke:#047857,stroke-width:2px,color:#fff
     style H fill:#8b5cf6,stroke:#6d28d9,stroke-width:2px,color:#fff
+    style I fill:#f59e0b,stroke:#b45309,stroke-width:2px,color:#fff
 ```
 
 ---
 
-## 🗄️ Relational Database Schema
+## 🗄️ Database Schema
 
-All database entities are fully mapped using SQLAlchemy Declarative models. Below is the Entity-Relationship Diagram representing the structured database schema:
+The database contains three main entities mapped with SQLAlchemy:
 
 ```mermaid
 erDiagram
@@ -52,231 +59,326 @@ erDiagram
     videos ||--o{ comments : receives
 
     channels {
-        string channel_id PK "Primary Key (YouTube Channel ID)"
-        string channel_name "Name of the Channel"
-        string description "Text Description"
-        string country "Origin Country"
-        string published_at "Creation Timestamp"
-        bigint subscriber_count "Total Subscribers"
-        bigint total_views "Total views across channel"
-        int video_count "Number of uploaded videos"
+        string channel_id PK
+        string channel_name
+        string description
+        string country
+        string published_at
+        bigint subscriber_count
+        bigint total_views
+        int video_count
     }
 
     videos {
-        string video_id PK "Primary Key (YouTube Video ID)"
-        string channel_id FK "Foreign Key -> channels.channel_id"
-        string title "Title of the Video"
-        string description "Video Description Text"
-        string published_at "Upload Timestamp"
-        string thumbnail "URL of thumbnail image"
-        bigint view_count "Views count"
-        bigint like_count "Likes count"
-        bigint comment_count "Comments count"
-        string duration "ISO 8601 Duration string"
-        string category_id "YouTube category ID"
-        string default_language "Main audio/text language"
-        string tags "Joined tag list keyword metadata"
+        string video_id PK
+        string channel_id FK
+        string title
+        string description
+        string published_at
+        string thumbnail
+        bigint view_count
+        bigint like_count
+        bigint comment_count
+        string duration
+        string category_id
+        string default_language
+        string tags
     }
 
     comments {
-        string comment_id PK "Primary Key (YouTube Comment ID)"
-        string video_id FK "Foreign Key -> videos.video_id"
-        string author "Commenter username"
-        string comment "Original text"
-        string clean_comment "Normalized clean text"
-        int likes "Likes count on comment"
-        string published_at "Comment post timestamp"
-        boolean is_cleaned "True if text cleaning is completed"
-        boolean is_spam "True if identified as promotional/bot text"
-        boolean is_spam_checked "True if checked by spam pipeline"
-        string sentiment "VADER Class (Positive/Neutral/Negative)"
-        boolean is_sentiment_checked "True if sentiment run complete"
-        boolean contains_abusive_language "True if contains abusive words"
-        boolean is_abusive_checked "True if check completed"
-        int word_count "Total clean words count"
-        int character_count "Total clean characters count"
-        string comment_length "Classification category (Short/Medium/Long)"
-        boolean contains_link "True if HTTP/HTTPS link is found"
-        boolean contains_question "True if contains '?'"
-        boolean contains_exclamation "True if contains '!'"
-        boolean is_feature_engineered "True if features extracted"
+        string comment_id PK
+        string video_id FK
+        string author
+        string comment
+        string clean_comment
+        int likes
+        string published_at
+        boolean is_cleaned
+        boolean is_spam
+        boolean is_spam_checked
+        string sentiment
+        boolean is_sentiment_checked
+        boolean contains_abusive_language
+        boolean is_abusive_checked
+        int word_count
+        int character_count
+        string comment_length
+        boolean contains_link
+        boolean contains_question
+        boolean contains_exclamation
+        boolean is_feature_engineered
     }
 ```
 
 ---
 
-## 🧠 NLP Processing Pipeline Details
+## Processing Pipeline
 
-The natural language processing system cleans and enriches raw user commentary through five sequential steps:
+### 1. YouTube Data Ingestion
 
-### 1. Text Preprocessing & Normalization
-The engine processes raw text using pre-compiled regex patterns to create standardized strings:
-* **Lowercasing:** Converts text entirely to lowercase.
-* **URL Removal:** Strips hyperlinks matching `https?://\S+|www\.\S+`.
-* **Mentions & Hashtags:** Strips `@username` tags and `#hashtag` metadata keywords.
-* **Emoji Extraction:** Strips multi-byte emojis by converting string to ASCII (`ascii ignore`) and rebuilding.
-* **Special Characters:** Replaces non-alphanumeric symbols (`[^a-z0-9\s]`) with whitespace.
-* **Spacing Collapsing:** Replaces multi-space gaps (`\s+`) with single spaces and strips boundaries.
+The API layer fetches:
 
-### 2. Spam Detection Engine
-Identifies promotional commentary, bot spam, and repetitious links using dynamic keyword and phrase-dictionary mapping:
-* Automatically flags comments containing spam keywords (e.g., *subscribe*, *check out my channel*, *follow me*, *free money*).
-* Identifies comments containing raw URL traces.
-* Helps filter noise to isolate genuine user engagement.
+- Channel metadata and statistics.
+- Uploaded video metadata, thumbnails, duration, tags, views, likes, and comment counts.
+- Comment threads with authors, raw text, likes, and publish timestamps.
 
-### 3. Sentiment Analysis Engine
-Evaluates emotional polarity in comments using the **VADER Sentiment Intensity Analyzer** (specifically tuned for social media contexts). Polarity scores yield a compound score ($S_{comp}$) bounded between $[-1, 1]$:
-$$\text{Compound Score } (S_{comp}) = \frac{\text{sum of valence scores}}{\sqrt{(\text{sum of valence scores})^2 + \alpha}}$$
+### 2. Text Cleaning
 
-Based on this score, comments are classified into discrete classes:
-* **Positive Polarity:** $S_{comp} \ge 0.05$
-* **Negative Polarity:** $S_{comp} \le -0.05$
-* **Neutral Polarity:** $-0.05 < S_{comp} < 0.05$
+The cleaning pipeline normalizes raw comment text by lowercasing, removing URLs, mentions, hashtags, emojis, special characters, and extra spaces.
 
-### 4. Toxicity & Abusive Language Filter
-Detects aggressive, offensive, or inappropriate comments through dictionary matching:
-* Evaluates normalized comments against a compiled dictionary of abusive, toxic, and offensive keywords.
-* Tags matching rows with `contains_abusive_language = True` to enable moderation filters on the dashboard.
+### 3. Spam Detection
 
-### 5. Feature Engineering Engine
-Extracts structural context and features from each comment:
-* **Word Count:** Computes total token length.
-* **Character Count:** Computes character sequence length.
-* **Categorical Length Classification:**
-  * **Short:** $< 5$ words
-  * **Medium:** $5$ to $19$ words
-  * **Long:** $\ge 20$ words
-* **Inquiry Tagging:** Flags comments posing questions (`contains_question = True`) by checking for `?`.
-* **Exclamatory Tagging:** Flags comments showing excitement/intensity (`contains_exclamation = True`) by checking for `!`.
+The spam detector flags promotional or low-quality comments using rule-based keyword matching and link checks.
+
+### 4. Sentiment Analysis
+
+The sentiment pipeline uses VADER compound scoring to classify comments as:
+
+- `Positive`
+- `Neutral`
+- `Negative`
+
+### 5. Abusive Language Detection
+
+The abusive language pipeline checks normalized comments against a keyword dictionary and marks unsafe comments with `contains_abusive_language`.
+
+### 6. Feature Engineering
+
+The feature pipeline adds structured comment features:
+
+- Word count.
+- Character count.
+- Length category: `Short`, `Medium`, or `Long`.
+- Link, question, and exclamation flags.
 
 ---
 
-## 📂 Project Structure
+## Recommendation Engine
 
-```
-InfluenceIQ
-├── data/                       # Backups of retrieved datasets
-├── notebook/                   # Research notebooks and EDA experiments
-├── reports/                    # Aggregated report printouts
-├── src/                        # Core application code
-│   ├── api/                    # YouTube Data API scraping integration
-│   │   ├── channel_service.py  # Ingests channel details & metadata
-│   │   ├── video_service.py    # Ingests uploads & video statistics
-│   │   ├── comment_service.py  # Ingests comment threads & counts
-│   │   └── youtube_client.py   # Initializes Google API client objects
-│   ├── abusive/                # Toxicity identification filters
-│   │   └── abusive_detector.py # Matches comments against toxic dictionaries
-│   ├── cleaning/               # Core preprocessors & spam engines
-│   │   ├── text_cleaner.py     # Regex sanitization and ASCII translation
-│   │   └── spam_detector.py    # Rules engine to detect promotional bots
-│   ├── dashboard/              # Interactive analytics panel views
-│   │   └── app.py              # Multi-page dashboard interface
-│   ├── database/               # Relational persistence modules
-│   │   ├── connection.py       # Establishes SQL engines & session factories
-│   │   ├── crud.py             # Basic database operations
-│   │   ├── loader.py           # Initializes tables using metadata schema
-│   │   └── models.py           # Table classes mapping relations
-│   ├── features/               # Statistical enrichment services
-│   │   └── feature_engineering.py # Generates structural text metrics
-│   ├── pipeline/               # Pipeline execution controllers
-│   │   ├── youtube_pipeline.py # Scraping flow orchestrator
-│   │   ├── cleaning_pipeline.py# Normalization batch coordinator
-│   │   ├── spam_pipeline.py    # Spam pipeline runner
-│   │   ├── sentiment_pipeline.py # Sentiment pipeline executor
-│   │   ├── abusive_pipeline.py # Toxicity engine batch coordinator
-│   │   └── feature_pipeline.py # Feature engineering executor
-│   ├── repositories/           # Database interface abstractions
-│   ├── sentiment/              # Sentiment modeling config
-│   │   └── sentiment_analyzer.py # Runs VADER Compound Scoring models
-│   └── utils/                  # Keyword lists & environment keys
-├── .env                        # Local configurations (Git ignored)
-├── main.py                     # Console pipeline commander CLI
-└── requirements.txt            # System dependencies manifest
+The project now includes a complete recommendation package under `src/recommendation/`.
+
+The recommendation engine extracts channel, video, and audience metrics, calculates weighted scores, ranks the influencer, and applies business rules to generate a brand collaboration decision.
+
+### Extracted Metrics
+
+- Subscribers, total views, total videos, likes, and comment volume.
+- Engagement rate based on likes and video comments relative to views.
+- Positive, neutral, negative, spam, and abusive comment ratios.
+- Average video views, likes, comments, word count, and character count.
+
+### Scoring Model
+
+The scoring layer calculates:
+
+- **Engagement Score:** derived from engagement rate.
+- **Audience Score:** rewards positive sentiment and penalizes negative, spam, and abusive ratios.
+- **Popularity Score:** combines subscriber and view scale.
+- **Brand Safety Score:** penalizes spam and abusive content.
+- **ROI Score:** combines engagement, audience quality, and popularity.
+- **Influence Score:** final weighted score used for ranking and recommendation.
+
+### Business Decision Layer
+
+The business rules convert scores into:
+
+- Final recommendation: `Highly Recommended`, `Recommended`, `Good Choice`, `Average Choice`, or `Avoid`.
+- Star rating from 1 to 5.
+- Brand safety label.
+- ROI potential.
+- Investment risk level.
+- Confidence score.
+- Executive summary.
+
+---
+
+## Dashboard Pages
+
+The Streamlit dashboard is available at `src/dashboard/app.py` and includes:
+
+- **Home:** high-level totals and summary KPIs.
+- **Videos:** video-level analytics and performance comparisons.
+- **Comments:** raw and cleaned comment exploration.
+- **NLP:** sentiment, spam, and abusive-language insights.
+- **Insights:** executive analytics for content and audience behavior.
+- **Recommendation:** AI Investment Advisor with influence score, brand safety, ROI, risk, radar chart, score breakdown, executive report, final decision, and CSV download.
+
+---
+
+## Project Structure
+
+```text
+Influence_IQ/
+|-- main.py
+|-- README.md
+|-- requirements.txt
+|-- notebook/
+|   |-- 01_Data_Loading.ipynb
+|   |-- 02_EDA.ipynb
+|   |-- 03_Advanced_Visual_Analytics.ipynb
+|-- src/
+|   |-- api/
+|   |   |-- channel_service.py
+|   |   |-- comment_service.py
+|   |   |-- video_service.py
+|   |   |-- youtube_client.py
+|   |-- abusive/
+|   |   |-- abusive_detector.py
+|   |-- cleaning/
+|   |   |-- spam_detector.py
+|   |   |-- text_cleaner.py
+|   |-- dashboard/
+|   |   |-- app.py
+|   |   |-- charts.py
+|   |   |-- loader.py
+|   |   |-- metrics.py
+|   |   |-- sidebar.py
+|   |   |-- styles.py
+|   |   |-- assets/
+|   |   |   |-- style.css
+|   |   |-- dashboard_pages/
+|   |   |   |-- comments.py
+|   |   |   |-- home.py
+|   |   |   |-- insights.py
+|   |   |   |-- nlp.py
+|   |   |   |-- recommendation.py
+|   |   |   |-- videos.py
+|   |-- database/
+|   |   |-- connection.py
+|   |   |-- crud.py
+|   |   |-- loader.py
+|   |   |-- models.py
+|   |-- features/
+|   |   |-- feature_engineering.py
+|   |-- pipeline/
+|   |   |-- abusive_pipeline.py
+|   |   |-- cleaning_pipeline.py
+|   |   |-- etl_pipeline.py
+|   |   |-- feature_pipeline.py
+|   |   |-- sentiment_pipeline.py
+|   |   |-- spam_pipeline.py
+|   |   |-- youtube_pipeline.py
+|   |-- recommendation/
+|   |   |-- business_rules.py
+|   |   |-- metrics.py
+|   |   |-- ranking.py
+|   |   |-- recommend.py
+|   |   |-- scorer.py
+|   |-- repositories/
+|   |   |-- channel_repository.py
+|   |   |-- comment_repository.py
+|   |   |-- video_repository.py
+|   |-- sentiment/
+|   |   |-- sentiment_analyzer.py
+|   |-- utils/
+|       |-- abusive_keywords.py
+|       |-- file_handler.py
+|       |-- logger.py
+|       |-- spam_keywords.py
+|       |-- validator.py
 ```
 
 ---
 
-## ⚙️ Installation & Configuration
+## Installation and Configuration
 
-### 1. Initialize Workspace
+### 1. Clone and Set Up
+
 ```bash
-# Clone the repository
 git clone https://github.com/aryandhiman01/InfluenceIQ.git
 cd InfluenceIQ
 
-# Build virtual environment
 python -m venv .venv
+```
 
-# Activate on Windows:
+Activate the environment:
+
+```bash
+# Windows
 .venv\Scripts\activate
 
-# Activate on macOS / Linux:
+# macOS / Linux
 source .venv/bin/activate
+```
 
-# Install dependencies
+Install dependencies:
+
+```bash
 pip install -r requirements.txt
 ```
 
-### 2. Configure Settings (.env)
-Create a `.env` file in the root workspace folder:
+### 2. Configure Environment Variables
+
+Create a `.env` file in the project root:
+
 ```env
-DATABASE_URL="your_database_connection_string"
+DATABASE_URL="your_postgresql_connection_string"
 YOUTUBE_API_KEY="your_youtube_api_key"
 ```
 
 ---
 
-## ▶️ Execution
+## Execution
 
-### Command Line Console
-Run the interactive supervisor script to initialize the database schema and process data batches:
+### Run the Pipeline CLI
+
 ```bash
 python main.py
 ```
-**Interactive Options Menu:**
-1. **Fetch YouTube Data:** Connects to the API, scrapes details, and saves to database.
-2. **Clean Comments:** Runs regex-based sanitization in batches.
-3. **Detect Spam:** Filters spam content.
-4. **Sentiment Analysis:** Classifies comment sentiment.
-5. **Detect Abusive Language:** Identifies offensive statements.
-6. **Feature Engineering:** Extracts comment metrics.
-7. **Run Complete Pipeline:** Executes all pipeline steps sequentially.
-8. **Exit:** Safely closes the database session.
 
-### Streamlit Dashboard
-Launch the multi-page visualization panel:
+Menu options:
+
+1. Fetch YouTube data.
+2. Clean comments.
+3. Detect spam.
+4. Run sentiment analysis.
+5. Detect abusive language.
+6. Run feature engineering.
+7. Run the complete pipeline.
+8. Exit.
+
+### Run the Dashboard
+
 ```bash
 streamlit run src/dashboard/app.py
 ```
-Open [http://localhost:8501](http://localhost:8501) in your browser.
+
+Then open:
+
+```text
+http://localhost:8501
+```
 
 ---
 
-## 📊 Analytics Dashboard Modules
+## Work Completed
 
-- **🏠 Home Dashboard:** High-level summary of total channels, tracked videos, comment volume, and general view metrics.
-- **🎥 Video Analytics:** Highlights engagement rates, views, likes, and comment ratios on a per-video level.
-- **💬 Comment Analytics:** Detailed log of comments, comparing raw text to cleaned text side-by-side.
-- **🧠 NLP Dashboard:** Visualizes sentiment distributions (positive vs. negative shares), spam ratios, and toxicity alerts over time.
-- **📊 Executive Insights:** Actionable audience metrics to guide content and moderation strategies.
+- Built modular YouTube ingestion services.
+- Created SQLAlchemy models for channels, videos, and comments.
+- Added repository and database utility layers.
+- Added text cleaning, spam detection, sentiment analysis, abusive detection, and feature engineering pipelines.
+- Built a multi-page Streamlit dashboard.
+- Added dashboard pages for home, videos, comments, NLP, insights, and recommendation.
+- Implemented the recommendation engine with metrics extraction, scoring, ranking, business rules, and final report generation.
+- Added visual recommendation outputs including gauge chart, radar chart, score table, score comparison chart, risk analysis, business recommendations, and downloadable report.
+
+---
+
+## Future Enhancements
+
+- Add support for comparing multiple channels in the recommendation engine.
+- Add topic modeling to identify recurring audience discussion themes.
+- Add historical tracking for channel growth and campaign performance.
+- Improve dependency management with a clean production-focused requirements file.
+- Containerize the app for deployment.
 
 ---
 
-## 🔮 Future Enhancements
-- [ ] Implement real-time streaming pipelines using YouTube API webhooks.
-- [ ] Add Topic Modeling (LDA) to classify themes of discussion.
-- [ ] Introduce a Machine Learning Recommendation model.
-- [ ] Transition the pipeline to containerized Cloud Run deployments.
+## License
 
----
----
-
-## 📄 License
-
-This project is licensed under the **MIT License**. Feel free to use, modify, and distribute this project in accordance with the terms of the license. See the **LICENSE** file for more details.
+This project is licensed under the **MIT License**. See the `LICENSE` file for details.
 
 ---
 
 <p align="center">
-  Made with ❤️ by <b>Aryan Dhiman</b> for creators, marketers, and data engineers.
-</p>*
+  Made by <b>Aryan Dhiman</b> for creators, marketers, and data engineers.
+</p>
