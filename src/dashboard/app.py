@@ -10,6 +10,7 @@ from dashboard_pages.videos import show_videos
 from dashboard_pages.comments import show_comments
 from dashboard_pages.nlp import show_nlp
 from dashboard_pages.insights import show_insights
+from dashboard_pages.recommendation import show_recommendation
 
 
 # ==========================================================
@@ -86,7 +87,9 @@ page = st.sidebar.radio(
 
         "🧠 NLP",
 
-        "📈 Insights"
+        "📈 Insights",
+
+        "🎯 Recommendation"
 
     ]
 
@@ -153,6 +156,18 @@ elif page == "🧠 NLP":
 elif page == "📈 Insights":
 
     show_insights(
+
+        videos_df,
+
+        comments_df
+
+    )
+
+elif page == "🎯 Recommendation":
+
+    show_recommendation(
+
+        channels_df,
 
         videos_df,
 
