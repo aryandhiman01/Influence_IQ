@@ -1,4 +1,4 @@
-# 📊 InfluenceIQ — YouTube Analytics & NLP Intelligence Platform
+# 📊 InfluenceIQ — YouTube Analytics & Intelligence Platform
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.10%2B-blue?style=for-the-badge&logo=python&logoColor=yellow" alt="Python Version">
