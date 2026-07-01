@@ -1,0 +1,317 @@
+/* =====================================================
+   InfluenceIQ Premium Theme
+===================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+html,
+body,
+[class*="css"]{
+
+    font-family: "Inter", sans-serif;
+
+}
+
+/* =====================================================
+   Main App
+===================================================== */
+
+.stApp{
+
+    background:#0F172A;
+
+    color:#F8FAFC;
+
+}
+
+/* =====================================================
+   Hide Streamlit
+===================================================== */
+
+#MainMenu{
+
+    visibility:hidden;
+
+}
+
+footer{
+
+    visibility:hidden;
+
+}
+
+/* =====================================================
+   Sidebar
+===================================================== */
+
+section[data-testid="stSidebar"]{
+
+    background:#111827;
+
+    border-right:1px solid #1E293B;
+
+}
+
+section[data-testid="stSidebar"] *{
+
+    color:white;
+
+}
+
+/* =====================================================
+   Titles
+===================================================== */
+
+h1{
+
+    color:white;
+
+    font-size:42px;
+
+    font-weight:800;
+
+}
+
+h2{
+
+    color:white;
+
+    font-weight:700;
+
+}
+
+h3{
+
+    color:white;
+
+    font-weight:600;
+
+}
+
+/* =====================================================
+   KPI Cards
+===================================================== */
+
+div[data-testid="metric-container"]{
+
+    background:#1E293B;
+
+    border-radius:18px;
+
+    border:1px solid #334155;
+
+    padding:20px;
+
+    transition:0.3s;
+
+    box-shadow:
+
+    0px 8px 24px rgba(0,0,0,.25);
+
+}
+
+div[data-testid="metric-container"]:hover{
+
+    transform:translateY(-5px);
+
+    border:1px solid #3B82F6;
+
+    box-shadow:
+
+    0px 15px 35px rgba(59,130,246,.25);
+
+}
+
+/* =====================================================
+   Metric Value
+===================================================== */
+
+div[data-testid="metric-container"] label{
+
+    color:#CBD5E1;
+
+}
+
+div[data-testid="metric-container"] p{
+
+    color:white;
+
+    font-size:28px;
+
+    font-weight:700;
+
+}
+
+/* =====================================================
+   Buttons
+===================================================== */
+
+.stButton>button{
+
+    background:#2563EB;
+
+    color:white;
+
+    border:none;
+
+    border-radius:12px;
+
+    padding:10px 22px;
+
+    font-weight:600;
+
+    transition:.3s;
+
+}
+
+.stButton>button:hover{
+
+    background:#1D4ED8;
+
+    transform:scale(1.03);
+
+}
+
+/* =====================================================
+   Download Button
+===================================================== */
+
+.stDownloadButton>button{
+
+    background:#059669;
+
+    color:white;
+
+    border:none;
+
+    border-radius:12px;
+
+    padding:10px 22px;
+
+}
+
+.stDownloadButton>button:hover{
+
+    background:#047857;
+
+}
+
+/* =====================================================
+   Tables
+===================================================== */
+
+[data-testid="stDataFrame"]{
+
+    border-radius:18px;
+
+    overflow:hidden;
+
+    border:1px solid #334155;
+
+}
+
+/* =====================================================
+   Plotly
+===================================================== */
+
+.js-plotly-plot{
+
+    border-radius:18px;
+
+    overflow:hidden;
+
+}
+
+/* =====================================================
+   Alerts
+===================================================== */
+
+.stAlert{
+
+    border-radius:16px;
+
+}
+
+/* =====================================================
+   Text Input
+===================================================== */
+
+.stTextInput input{
+
+    border-radius:10px;
+
+}
+
+/* =====================================================
+   Select Box
+===================================================== */
+
+.stSelectbox div{
+
+    border-radius:10px;
+
+}
+
+/* =====================================================
+   Slider
+===================================================== */
+
+.stSlider{
+
+    padding-top:10px;
+
+}
+
+/* =====================================================
+   Divider
+===================================================== */
+
+hr{
+
+    border:1px solid #1E293B;
+
+}
+
+/* =====================================================
+   Scrollbar
+===================================================== */
+
+::-webkit-scrollbar{
+
+    width:10px;
+
+}
+
+::-webkit-scrollbar-track{
+
+    background:#111827;
+
+}
+
+::-webkit-scrollbar-thumb{
+
+    background:#334155;
+
+    border-radius:20px;
+
+}
+
+::-webkit-scrollbar-thumb:hover{
+
+    background:#475569;
+
+}
+
+/* =====================================================
+   Footer
+===================================================== */
+
+.footer{
+
+    text-align:center;
+
+    color:#94A3B8;
+
+    margin-top:40px;
+
+}
